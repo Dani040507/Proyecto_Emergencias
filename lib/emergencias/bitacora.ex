@@ -44,15 +44,23 @@ defmodule Emergencias.Bitacora do
   end
 
   @doc "Consulta la actividad de un usuario (o de todos si es nil)."
-  def consultar(usuario \\ nil) do
-    send(@nombre, {:consultar, self(), usuario})
 
-    receive do
-      {:actividad, registros} -> registros
-    after
-      5_000 -> []
-    end
+def consultar(usuario \\ nil) do
+  case Process.whereis(@nombre) do
+    nil ->
+      []
+
+    pid ->
+      send(pid, {:consultar, self(), usuario})
+
+      receive do
+        {:actividad, registros} -> registros
+      after
+        5_000 -> []
+      end
   end
+end
+
 
   # ----- Ciclo del proceso (recursivo) -----
 
