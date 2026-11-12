@@ -1,0 +1,8 @@
+/_build/
+/deps/
+/datos_test/
+/datos/
+erl_crash.dump
+*.beam
+2026-11-11-*.txt
+CLAUDE.md
