@@ -33,21 +33,28 @@ defmodule Emergencias.Consola do
   end
 
   @doc "Ejecuta, en orden, los comandos de un archivo de texto (las líneas con # se ignoran)."
-  def ejecutar_guion(ruta) do
-    ruta
-    |> File.read!()
-    |> String.split("\n", trim: true)
-    |> Enum.map(&String.trim/1)
-    |> Enum.reject(fn linea -> linea == "" or String.starts_with?(linea, "#") end)
-    |> Enum.reduce(nil, fn linea, sesion ->
-      Util.mostrar("\n> #{linea}", :mensaje)
-      {respuesta, nueva_sesion} = Comandos.ejecutar(linea, sesion)
-      Util.mostrar(respuesta, :mensaje)
-      nueva_sesion
-    end)
+@doc "Ejecuta, en orden, los comandos de un archivo de texto (las líneas con # se ignoran)."
+def ejecutar_guion(ruta) do
+  case File.read(ruta) do
+    {:ok, contenido} ->
+      contenido
+      |> String.split("\n", trim: true)
+      |> Enum.map(&String.trim/1)
+      |> Enum.reject(fn linea -> linea == "" or String.starts_with?(linea, "#") end)
+      |> Enum.reduce(nil, fn linea, sesion ->
+        Util.mostrar("\n> #{linea}", :mensaje)
+        {respuesta, nueva_sesion} = Comandos.ejecutar(linea, sesion)
+        Util.mostrar(respuesta, :mensaje)
+        nueva_sesion
+      end)
 
-    :ok
+      :ok
+
+    {:error, razon} ->
+      Util.mostrar("No se pudo leer el guion: #{:file.format_error(razon)}", :error)
+      {:error, razon}
   end
+end
 
   # ---------- Ciclo recursivo de lectura de comandos ----------
 
