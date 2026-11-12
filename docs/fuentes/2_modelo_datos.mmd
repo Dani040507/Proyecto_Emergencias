@@ -1,0 +1,101 @@
+classDiagram
+    class Usuario {
+        usuario : String
+        contrasena : hash SHA-256
+        nombre : String
+        tipo : ciudadano|voluntario|coordinador|administrador
+        zona : String
+    }
+    class Zona {
+        codigo : String
+        nombre : String
+        tipo : zona|sector|punto
+        nivel : critico|alto|medio|bajo
+        afectados : Integer
+        padre : String
+    }
+    class Necesidad {
+        id : String ej N001
+        tipo : agua|alimentos|...|rescate|otra
+        cantidad : Integer
+        asignada : Integer
+        prioridad : critica|alta|media|baja
+        zona : String
+        descripcion : String
+        responsable : String
+        estado : pendiente|asignada|en_atencion|atendida|cancelada
+        destino : String
+        fecha : String
+    }
+    class Recurso {
+        codigo : String
+        nombre : String
+        categoria : String
+        cantidad : Integer
+        unidad : String
+        ubicacion : String
+        zona : String
+    }
+    class Movimiento {
+        fecha : String
+        tipo : registro|entrada|salida|asignacion|transferencia
+        codigo : String
+        cantidad : Integer
+        detalle : String
+    }
+    class Persona {
+        documento : String
+        nombre : String
+        edad : Integer
+        zona : String
+        estado : sin_informacion|reportada|localizada|trasladada|en_albergue|reunificada
+    }
+    class HistorialPersona {
+        fecha : String
+        documento : String
+        anterior : String
+        nuevo : String
+        usuario : String
+    }
+    class Mensaje {
+        id : String ej MSG001
+        fecha : String
+        remitente : String
+        destinatario : String
+        contenido : String
+        estado : pendiente|entregado
+    }
+    class Mascota {
+        id : String ej M001
+        tipo : perdida|encontrada
+        especie : String
+        nombre : String
+        caracteristicas : String
+        color : String
+        tamano : String
+        zona : String
+        contacto : String
+        estado : activa|posible_coincidencia|resuelta
+        coincidencia : String
+    }
+    class Albergue {
+        codigo : String
+        nombre : String
+        zona : String
+        capacidad : Integer
+        ocupantes : MapSet~documento~
+    }
+    Zona "1" --> "0..*" Zona : padre / hijos
+    Zona "1" --> "0..*" Necesidad
+    Zona "1" --> "0..*" Recurso
+    Zona "1" --> "0..*" Albergue
+    Zona "1" --> "0..*" Persona
+    Zona "1" --> "0..*" Mascota
+    Recurso "1" --> "0..*" Movimiento : historial
+    Necesidad "0..*" --> "0..*" Recurso : asignación
+    Persona "1" --> "0..*" HistorialPersona
+    Persona "1" --> "0..*" Mensaje : destinatario
+    Albergue "1" --> "0..*" Persona : ocupantes
+    Albergue "1" --> "0..*" Necesidad : destino
+    Mascota "1" --> "0..1" Mascota : coincidencia
+    Usuario "1" --> "0..*" Necesidad : responsable

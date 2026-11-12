@@ -1,0 +1,20 @@
+flowchart TB
+    App(["Emergencias.Application"])
+    Sup["Emergencias.Supervisor<br/>Supervisor · one_for_one"]
+    Bit["Emergencias.Bitacora<br/>proceso spawn_link + receive<br/>registrado :bitacora"]
+    Dom["Emergencias.SupervisorDominio<br/>Supervisor · one_for_one"]
+    Rem["Emergencias.ServidorRemoto<br/>proceso spawn_link + receive<br/>registrado :servicio_emergencias"]
+    App --> Sup
+    Sup --> Bit
+    Sup --> Dom
+    Sup --> Rem
+    Dom --> U["Usuarios<br/>GenServer"]
+    Dom --> Z["Zonas<br/>GenServer"]
+    Dom --> R["Recursos<br/>GenServer"]
+    Dom --> N["Necesidades<br/>GenServer"]
+    Dom --> P["Personas<br/>GenServer"]
+    Dom --> M["Mensajes<br/>GenServer"]
+    Dom --> Ma["Mascotas<br/>GenServer"]
+    Dom --> A["Albergues<br/>GenServer"]
+    Rem -. "spawn por solicitud<br/>(no supervisados, temporales)" .-> T1(("proceso<br/>solicitud 1"))
+    Rem -.-> T2(("proceso<br/>solicitud 2"))

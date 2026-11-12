@@ -1,0 +1,28 @@
+sequenceDiagram
+    autonumber
+    actor Laura as Laura (coordinadora)
+    actor Otro as Otro usuario
+    participant S as ServidorRemoto
+    participant C as Comandos
+    participant N as Necesidades (GenServer)
+    participant R as Recursos (GenServer)
+
+    Note over R: R001 agua = 50 litros
+    par Solicitudes simultáneas
+        Laura->>S: {pid, {:comando, "assign_resource N001 agua 30", sesion}}
+        S->>C: spawn -> ejecutar(...)
+        C->>N: GenServer.call {:asignar, N001, agua, 30}
+    and
+        Otro->>S: {pid, {:comando, "assign_resource N002 agua 25", sesion}}
+        S->>C: spawn -> ejecutar(...)
+        C->>N: GenServer.call {:asignar, N002, agua, 25}
+    end
+    Note over N: El buzón ordena las solicitudes:<br/>se atienden una por una
+    N->>R: consumir(agua, 30)
+    R-->>N: {:ok, [{R001, 30}]}  (quedan 20)
+    N-->>C: {:ok, N001 asignada}
+    C-->>Laura: Asignación confirmada
+    N->>R: consumir(agua, 25)
+    R-->>N: {:error, "solo hay 20 disponibles"}
+    N-->>C: {:error, ...}
+    C-->>Otro: Asignación rechazada

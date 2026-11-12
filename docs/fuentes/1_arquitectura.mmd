@@ -1,0 +1,31 @@
+flowchart TB
+    subgraph Interfaz["1. Capa de interfaz"]
+        direction LR
+        Consola["Emergencias.Consola<br/>local · cliente remoto · guion"]
+        Remoto["Emergencias.ServidorRemoto<br/>spawn/receive · 1 proceso por solicitud"]
+        Consola -- "send/receive entre nodos" --> Remoto
+    end
+    subgraph Aplicacion["2. Capa de aplicación"]
+        direction LR
+        Comandos["Emergencias.Comandos<br/>parseo · permisos por rol · validación"]
+        Bitacora["Emergencias.Bitacora<br/>spawn/receive · actividad de usuarios"]
+        Comandos -- "send {:registrar, ...}" --> Bitacora
+    end
+    subgraph Estado["3. Capa de estado: GenServers supervisados"]
+        direction LR
+        G1["Usuarios · Zonas · Personas · Mensajes"]
+        G2["Necesidades"] -- "consumir/4" --> G3["Recursos"]
+        G4["Mascotas · Albergues"]
+    end
+    subgraph Dominio["4. Capa de dominio: funciones puras"]
+        direction LR
+        Modelos["Usuario · Zona · Necesidad · Recurso<br/>Persona · Mensaje · Mascota · Albergue"]
+        Util["Util"]
+    end
+    Persistencia[("Emergencias.Persistencia<br/>archivos .txt en datos/")]
+
+    Interfaz -- "Comandos.ejecutar(linea, sesion)" --> Aplicacion
+    Aplicacion -- "GenServer.call" --> Estado
+    Estado -- "crear / validar / transformar" --> Dominio
+    Estado -- "leer / guardar / agregar" --> Persistencia
+    Bitacora -.-> Persistencia
